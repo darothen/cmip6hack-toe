@@ -1,5 +1,8 @@
 import numpy as np
 
+import xarray as xr
+import xarray.ufuncs as xu
+
 
 def all_combos(elements, max_n):
     """ Given a list `elements` of $n$ values, return a generator which
@@ -9,6 +12,81 @@ def all_combos(elements, max_n):
     """
     return chain(*[combinations(elements, i) for i in range(1, 1 + max_n)])
 
+
+def area_grid(lon, lat, asarray=False):
+    """ Compute the area of the grid specified by 1D arrays
+    lon and lat. Returns the result as a 2D array (nlon, nlat)
+    containing the area of each gridbox, in m^2.
+    Parameters
+    ----------
+    lon, lat : array-like of floats
+        Arrays containing the longitude and latitude values
+        of the given grid.
+    asarray : Boolean
+        Return an array instead of DataArray object
+    Returns
+    -------
+    areas : xarray.DataArray or array
+        Array with shape (len(lon), len(lats)) containing the
+        area (in m^2) of each cell on the grid.
+    """
+
+    #: Earth's radius (m)
+    R_EARTH = 6375000.
+
+    # Induce lon/lat to array-like
+    lon_arr = np.asarray(lon)
+    lat_arr = np.asarray(lat)
+
+    ## grid parameters
+    nlon, nlat = len(lon_arr), len(lat_arr)
+    # mean delta lon between gridpoints (actually constant on regular grid)
+    # converted to radians
+    dlon  = np.abs(np.mean(lon_arr[1:]-lon_arr[:-1]))*np.pi/180.
+    # same, for lat
+    dlat  = np.abs(np.mean(lat_arr[1:]-lat_arr[:-1]))*np.pi/180.
+    # convert latitudes from -90,90 -> -180, 0 and then to radians
+    theta = (90. - lat_arr)*np.pi/180.
+
+    areas = np.zeros([nlon, nlat])
+    for lat_i in range(nlat):
+        for lon_i in range(nlon):
+
+            lat1 = theta[lat_i] - dlat/2.
+            lat2 = theta[lat_i] + dlat/2.
+
+            if (theta[lat_i] == 0) or (theta[lat_i] == np.pi):
+                areas[lon_i, lat_i] = (R_EARTH**2.) \
+                                     *np.abs(  np.cos(dlat/2.) \
+                                             - np.cos(0.)     )*dlon
+            else:
+                areas[lon_i, lat_i] = (R_EARTH**2.) \
+                                     *np.abs( np.cos(lat1) - np.cos(lat2) )*dlon
+
+    areas = areas.T # re-order (lat, lon)
+
+    if asarray:
+        return areas
+    else:
+        # Construct DataArray from the result
+
+        # For some reason, there are random issues with the order
+        # of the coordinates, so we try both ways here.
+        coords = [lon, lat]
+        dims = ['lon', 'lat']
+        while True:
+            try:
+                areas = DataArray(
+                    areas, coords=coords, dims=dims, name='area',
+                    attrs=dict(long_name="grid cell area", units="m^2")
+                )
+
+                break
+            except ValueError:
+                areas = areas.T
+
+        return areas
+        
 
 def clean_xy(x, y):
     """ Given two arrays of paired observations, drop indices where one or
@@ -34,6 +112,49 @@ def find_nearest(array, value):
     """ Find the index of the nearest element in `array` to `value`. """
     idx = (np.abs(array - value)).argmin()
     return idx
+
+
+def global_avg(data, weights=None, dims=['lon', 'lat']):
+    """ Compute (area-weighted) global average over a DataArray
+    or Dataset. If `weights` are not passed, they will be computed
+    by using the areas of each grid cell in the dataset.
+    .. note::
+        Handles missing values (nans and infs).
+    """
+
+    if isinstance(data, xr.DataArray):
+
+        if weights is None:  # Compute gaussian weights in latitude
+            weights = area_grid(data.lon, data.lat)
+            # Saving for later - compute latitudinal weighting
+            # gw = weights.sum('lon')
+            # weights = 2.*gw/gw.sum('lat')
+
+        weights = weights.where(xu.isfinite(data))
+        total_weights = weights.sum(dims)
+
+        return (data*weights).sum(dims)/total_weights
+
+    elif isinstance(data, xr.Dataset):
+
+        # Create a new temporary Dataset
+        new_data = xr.Dataset()
+
+        # Iterate over the contents of the original Dataset,
+        # which are all DataArrays, and compute the global avg
+        # on those elements.
+        for v in data.data_vars:
+            coords = data[v].coords
+            if not ('lon' in coords):
+                new_data[v] = data[v]
+            else:
+                new_data[v] = global_avg(data[v], weights)
+
+        # Collapse remaining lat, lon dimensions if they're here
+        leftover_dims = [d for d in dims if d in new_data.coords]
+        if leftover_dims:
+            new_data = new_data.sum(leftover_dims)
+        return new_data
 
 
 def great_circle_dist(lon1, lat1, lon2, lat2, r=1.0):
