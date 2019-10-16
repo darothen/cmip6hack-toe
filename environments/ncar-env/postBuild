@@ -1,0 +1,14 @@
+#!/bin/bash
+
+set -xeo pipefail
+
+source activate CMIP6-201910
+
+jupyter labextension install @jupyter-widgets/jupyterlab-manager \
+                             @pyviz/jupyterlab_pyviz \
+                             jupyter-leaflet \
+                             nbdime-jupyterlab
+
+# removes tarballs and unused packages
+conda clean -tipsy
+#EOF

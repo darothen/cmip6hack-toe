@@ -1,0 +1,23 @@
+# Current as of pangeo-cloud-federation@5f8fca5c066f2671fcd366a1560e98c8073cb9ea
+name: pangeo
+channels:
+  - conda-forge
+dependencies:
+  - cc-plugin-ncei
+  - ciso
+  - compliance-checker
+  - ctd
+  - geolinks
+  - gridgeo
+  - ioos-tools
+  - pocean-core
+  - podaacpy
+  - pyoos
+  - retrying
+  - unyt
+  - utide
+  - xlrd
+  - xmitgcm>=0.4.1
+  - pip:
+    - git+https://github.com/xgcm/xgcm.git
+    - git+https://github.com/pydata/xarray.git

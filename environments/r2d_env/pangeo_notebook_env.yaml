@@ -1,0 +1,68 @@
+name: pangeo
+channels:
+  - conda-forge
+dependencies:
+  # core scipy packages
+  - numpy
+  - scipy
+  - matplotlib
+  - pandas
+  - xarray
+  - sparse
+  # data science stuff
+  - scikit-image
+  - scikit-learn
+  - dask-ml
+  - tensorflow
+  - keras
+  - pytorch-cpu
+  # pyviz
+  - holoviews
+  - panel
+  - geoviews
+  - hvplot
+  - geoviews
+  - datashader
+  # geospatial
+  - iris
+  - cartopy
+  - geopandas
+  - rasterio
+  - netcdf4
+  - h5py
+  - h5netcdf
+  - regionmask
+  - rio-cogeo
+  # geoscience-related
+  - climlab
+  - metpy
+  - satpy
+  - gsw
+  - eofs
+  - esmpy
+  - xesmf
+  - windspharm
+  # intake-related
+  - intake
+  - intake-xarray
+  # - intake-stac
+  # zarr-related
+  - zarr
+  - numcodecs
+  - python-blosc
+  - lz4
+  - gcsfs
+  - s3fs
+  - tiledb-py
+  # jupyter-related
+  - ipyleaflet
+  # xarray-related
+  - xgcm
+  - xrft
+  - xrviz
+  - climpred
+  - pytide
+  - pyinterp
+  - pip
+  - pip:
+    - intake-esm

@@ -1,0 +1,20 @@
+# packages in addition to repo2docker/buildpacks/conda/environment.yml
+# current as of pangeo-stacks@092acd5fdce0fcea8959741d2037fcfcf53dc6b7
+name: pangeo
+channels:
+  - conda-forge
+dependencies:
+  - jupyterlab=1
+  - jupyterhub=1
+  - nbgitpuller=0.7
+  - dask>=2.5.2
+  - distributed>=2.5
+  - dask-jobqueue>=0.7  # replaces dask-kubernetes
+  - dask-gateway>=0.5
+  - tornado=6
+  - jupyter-server-proxy=1.1
+  - bokeh=1.3
+  - graphviz=2.40
+  - pip=19
+  - pip:
+    - git+https://github.com/ian-r-rose/dask-labextension.git@de-asyncify#egg=dask_labextension
