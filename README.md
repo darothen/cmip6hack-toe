@@ -15,9 +15,20 @@ This repository is for planning and working on the ["Time of Emergence"](https:/
 Please clone this repository onto the compute system we plan to use for the hackathon.
 
 1. Open a JupyterLab session.
-1. Open a terminal in the JupyterLab environment.
-1. Clone your project: `git clone https://github.com/darothen/cmip6hack-toe.git`
-1. Get to work!
+2. Open a terminal in the JupyterLab environment.
+3. Clone your project: `git clone https://github.com/darothen/cmip6hack-toe.git`
+4. Get to work!
+
+Additionally, we've created a library of utility tools and functions. 
+We've set these up to be installable as a Python package; to do so, navigate to
+the folder where you cloned `cmip6hack-toe` and execute the command
+
+``` shell
+$ pip install -e .
+```
+
+This will use setuptools to install an editable copy of the code; that means that
+you can update the code at will without needing to re-install it!
 
 ### How to make our project citable
 
@@ -26,6 +37,7 @@ Please clone this repository onto the compute system we plan to use for the hack
 Follow the guidelines here https://guides.github.com/activities/citable-code
 
 -------------------
+
 # Can We Better Quantify the "Time of Emergence" of Regional Climate Change Signals Using CMIP6?
 
 ## Scientific Motivation
