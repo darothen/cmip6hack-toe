@@ -76,7 +76,7 @@ def area_grid(lon, lat, asarray=False):
         dims = ['lon', 'lat']
         while True:
             try:
-                areas = DataArray(
+                areas = xr.DataArray(
                     areas, coords=coords, dims=dims, name='area',
                     attrs=dict(long_name="grid cell area", units="m^2")
                 )
